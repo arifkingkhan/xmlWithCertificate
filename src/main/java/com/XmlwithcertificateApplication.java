@@ -16,6 +16,7 @@ public class XmlwithcertificateApplication {
 		EventQueue.invokeLater(() -> {
 
 			SpringApplication.run(XmlwithcertificateApplication.class, args);
+
 			LoginForm.run();
 			//BillGenerator ex = (BillGenerator)ctx.getBean(BillGenerator.class);
 			//ex.startPdfBillGenerator();
