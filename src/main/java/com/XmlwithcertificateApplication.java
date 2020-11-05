@@ -17,6 +17,10 @@ public class XmlwithcertificateApplication {
 
 			SpringApplication.run(XmlwithcertificateApplication.class, args);
 
+
+
+
+
 			LoginForm.run();
 			//BillGenerator ex = (BillGenerator)ctx.getBean(BillGenerator.class);
 			//ex.startPdfBillGenerator();
