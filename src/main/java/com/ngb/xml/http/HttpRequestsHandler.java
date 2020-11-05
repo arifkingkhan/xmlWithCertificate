@@ -3,6 +3,7 @@ package com.ngb.xml.http;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.ngb.global.Constants;
 import com.ngb.xml.dto.HttpHandlerResponse;
 import com.ngb.xml.dto.LoginBody;
 import com.ngb.xml.dto.ParsedXmlData;
@@ -35,6 +36,9 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+
+import com.ngb.xml.ui.LoginForm;
+import com.ngb.xml.uiWorker.LoginWorker;
 import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -47,12 +51,12 @@ import utils.MeterMakeCodeMapping;
 
 public class HttpRequestsHandler {
     private static OkHttpClient httpClient;
-    private static final String NGB_HOST = "ngb.mpwin.co.in";
+    private static final String NGB_HOST = "ngbtest.mpwin.co.in";
     private static final String USER_AGENT_HEADER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36";
-    private static final String LOGIN_API = "https://ngb.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/authentication/login";
-    private static final String CONSUMER_METER_MAPPING_API = "https://ngb.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/mapping/identifier/$meterIdentifier$/status/$status$";
-    private static final String LATEST_READ_API = "https://ngb.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/read/latest/consumer-no/$consumerNo$";
-    private static final String READ_MASTER_API = "https://ngb.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/read";
+    private static final String LOGIN_API = "https://ngbtest.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/authentication/login";
+    private static final String CONSUMER_METER_MAPPING_API = "https://ngbtest.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/mapping/identifier/$meterIdentifier$/status/$status$";
+    private static final String LATEST_READ_API = "https://ngbtest.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/read/latest/consumer-no/$consumerNo$";
+    private static final String READ_MASTER_API = "https://ngbtest.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/read";
     private final SimpleDateFormat oldDateFormat = new SimpleDateFormat("dd-MM-yyyy");
     private final SimpleDateFormat newDateFormat = new SimpleDateFormat("yyyy-MM-dd");
     private static List<X509Certificate> trustedCertificates;
@@ -133,7 +137,8 @@ public class HttpRequestsHandler {
         }
     }
 
-    private String sendReadMasterRequest(String authToken, ParsedXmlData parsedXmlData, BigDecimal latestReading) throws IOException, ParseException {
+    public String sendReadMasterRequest(String authToken, ParsedXmlData parsedXmlData, BigDecimal latestReading) throws Exception {
+
         System.out.println("Sending request to insert read..");
         String meterIdentifier = ((String)MeterMakeCodeMapping.meterMakeCodeMapping.get(parsedXmlData.getMeterMakeCode())).concat(parsedXmlData.getMeterNumber());
         BigDecimal readingToBeInserted = new BigDecimal(parsedXmlData.getB3Value());
@@ -143,7 +148,7 @@ public class HttpRequestsHandler {
         Read read = new Read(this.consumerNumber, meterIdentifier, this.newDateFormat.format(this.oldDateFormat.parse(parsedXmlData.getReadingDate())), "NORMAL", "WORKING", "NR", "AMR_FILE", readingToBeInserted, difference, new BigDecimal("1"), new BigDecimal("0"), new BigDecimal("0"), new BigDecimal("0"), new BigDecimal("0"), false, readMasterKW, readMasterPf);
         String readJson = (new Gson()).toJson(read);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), readJson);
-        Request request = (new okhttp3.Request.Builder()).url("https://ngb.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/read").addHeader("Authorization", authToken).post(requestBody).build();
+        Request request = (new okhttp3.Request.Builder()).url("https://ngbtest.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/read").addHeader("Authorization", authToken).post(requestBody).build();
         Call call = httpClient.newCall(request);
         Response response = call.execute();
         System.out.println("Received response from read master API");
@@ -151,7 +156,19 @@ public class HttpRequestsHandler {
             String responseJson = response.body().string();
             response.body().close();
             return responseJson;
-        } else {
+        }
+
+    /*    else if(response.code() == 401)
+        {
+            Constants cons = LoginForm.getCons();
+            LoginWorker loginworker = cons.getLoginWorker();
+            loginworker.doInBackground();
+            this.sendReadMasterRequest(authToken,parsedXmlData,latestReading);
+            return "hi";
+
+        } */
+
+        else {
             Map<String, String> errorMessage = new HashMap();
             errorMessage.put("Response code", String.valueOf(response.code()));
             errorMessage.put("Message", response.message());
@@ -220,12 +237,12 @@ public class HttpRequestsHandler {
     }
 
     private String buildLatestReadApiUrl() {
-        String url = "https://ngb.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/read/latest/consumer-no/$consumerNo$".replace("$consumerNo$", this.consumerNumber);
+        String url = "https://ngbtest.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/read/latest/consumer-no/$consumerNo$".replace("$consumerNo$", this.consumerNumber);
         return url;
     }
 
     private String buildConsumerMeterMappingApiUrl(String meterIdentifier) {
-        String url = "https://ngb.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/mapping/identifier/$meterIdentifier$/status/$status$".replace("$meterIdentifier$", meterIdentifier).replace("$status$", "ACTIVE");
+        String url = "https://ngbtest.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/consumer/meter/mapping/identifier/$meterIdentifier$/status/$status$".replace("$meterIdentifier$", meterIdentifier).replace("$status$", "ACTIVE");
         return url;
     }
 
@@ -233,7 +250,21 @@ public class HttpRequestsHandler {
         LoginBody loginBody = new LoginBody(username, password);
         String loginBodyJson = (new Gson()).toJson(loginBody);
         RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), loginBodyJson);
-        Request request = (new okhttp3.Request.Builder()).url("https://ngb.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/authentication/login").post(requestBody).addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36").build();
+        Request request = (new okhttp3.Request.Builder()).url("https://ngbtest.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/authentication/login").post(requestBody).addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36").build();
+        System.out.println("Sending login request to ngb server..");
+        Call call = httpClient.newCall(request);
+        Response response = call.execute();
+        System.out.println("Received response from login API");
+        System.out.println(response.toString());
+        response.body().close();
+        return response.code() == 200 && !StringUtils.isBlank(response.headers().get("authorization")) ? new HttpHandlerResponse(Boolean.TRUE, response.headers().get("authorization")) : new HttpHandlerResponse(Boolean.FALSE, "Authentication falied! Wrong username/password.");
+    }
+
+    public HttpHandlerResponse reloginUser(String username, String password) throws IOException {
+        LoginBody loginBody = new LoginBody(username, password);
+        String loginBodyJson = (new Gson()).toJson(loginBody);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), loginBodyJson);
+        Request request = (new okhttp3.Request.Builder()).url("https://ngbtest.mpwin.co.in/mppkvvcl/nextgenbilling/backend/api/v1/authentication/login").post(requestBody).addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4147.89 Safari/537.36").build();
         System.out.println("Sending login request to ngb server..");
         Call call = httpClient.newCall(request);
         Response response = call.execute();
@@ -247,7 +278,7 @@ public class HttpRequestsHandler {
         PingResponse pingResponse = null;
 
         try {
-            InetAddress.getByName("ngb.mpwin.co.in").isReachable(1000);
+            InetAddress.getByName("ngbtest.mpwin.co.in").isReachable(1000);
             pingResponse = new PingResponse(Boolean.TRUE, "Host reachable!");
             return pingResponse;
         } catch (UnknownHostException var6) {

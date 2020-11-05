@@ -1,5 +1,6 @@
 package com.ngb.xml.ui;
 
+import com.ngb.global.Constants;
 import com.ngb.xml.http.HttpRequestsHandler;
 import com.ngb.xml.uiWorker.LoginWorker;
 import java.awt.Color;
@@ -28,6 +29,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import org.apache.commons.lang3.StringUtils;
 
 public class LoginForm extends JFrame {
+    static  Constants cons = new Constants();
     private LoginWorker loginWorker;
     private JButton btnLogin;
     private JLabel jLabel1;
@@ -40,6 +42,14 @@ public class LoginForm extends JFrame {
     private JLabel lblUsername;
     private JPasswordField txtPassword;
     private JTextField txtUsername;
+
+    public static Constants getCons() {
+        return cons;
+    }
+
+    public static void setCons(Constants cons) {
+        LoginForm.cons = cons;
+    }
 
     public LoginForm() {
         this.initComponents();
@@ -117,6 +127,8 @@ public class LoginForm extends JFrame {
 
         this.loginWorker = new LoginWorker(username, password, this);
         this.loginWorker.execute();
+
+        cons.setLoginWorker(this.loginWorker);
     }
 
     public static void run() {

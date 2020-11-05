@@ -56,14 +56,7 @@
 			<artifactId>commons-lang3</artifactId>
 			<version>3.11</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.google.collect/com.springsource.com.google.common.collect -->
 
-		<!-- https://mvnrepository.com/artifact/com.google.collect/com.springsource.com.google.common.collect -->
-		<dependency>
-			<groupId>com.google.collect</groupId>
-			<artifactId>com.springsource.com.google.common.collect</artifactId>
-			<version>0.5.0.alpha</version>
-		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
 		<dependency>

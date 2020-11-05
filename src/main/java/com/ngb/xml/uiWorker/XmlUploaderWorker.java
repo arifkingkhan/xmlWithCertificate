@@ -31,7 +31,7 @@ import utils.MeterMakeCodeMapping;
 public class XmlUploaderWorker extends SwingWorker<Void, Pair<AtomicInteger, AtomicInteger>> {
     private static final Integer NO_OF_REQUEST_THREADS = 25;
     private static final Integer PARTITION_SIZE = 50;
-    private final String authToken;
+    private String authToken;
     private final JLabel lblSuccessfulUpload;
     private final JLabel lblErrors;
     private final JLabel lblTotalFiles;
@@ -141,7 +141,7 @@ public class XmlUploaderWorker extends SwingWorker<Void, Pair<AtomicInteger, Ato
 
                     try {
                         httpRequestHandler = new HttpRequestsHandler();
-                        httpRequestHandler.sendParsedDataToServer(finalParsedXmlData, this.authToken);
+                        String responseJson = httpRequestHandler.sendParsedDataToServer(finalParsedXmlData, this.authToken);
                         this.logParsedData(this.successPrintWriter, finalParsedXmlData, httpRequestHandler.getConsumerNumber());
                         this.runningSuccessfulRequestsCount.addAndGet(1);
                         System.out.println("Read Successfully sent for meter " + finalParsedXmlData.getMeterNumber());
@@ -149,6 +149,8 @@ public class XmlUploaderWorker extends SwingWorker<Void, Pair<AtomicInteger, Ato
                         this.logException(this.exceptionPrintWriter, finalParsedXmlData, var4.getMessage(), httpRequestHandler.getConsumerNumber());
                         this.runningExceptionsCount.addAndGet(1);
                         System.out.println("Error occurred while sending Read for meter " + finalParsedXmlData.getMeterNumber());
+                        if(var4.getMessage().contains("401"))
+                        this.authToken=httpRequestHandler.reloginUser("XML_mcz","XML_mcz").getMessage();
                     }
 
                     this.processedFiles.addAndGet(1);
