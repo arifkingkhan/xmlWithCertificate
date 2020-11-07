@@ -1,6 +1,7 @@
 package com.ngb.xml.uiWorker;
 
 import com.google.common.collect.Lists;
+import com.ngb.global.Constants;
 import com.ngb.xml.dto.ParsedXmlData;
 import com.ngb.xml.http.HttpRequestsHandler;
 import com.ngb.xml.parser.XmlParserHandler;
@@ -149,8 +150,12 @@ public class XmlUploaderWorker extends SwingWorker<Void, Pair<AtomicInteger, Ato
                         this.logException(this.exceptionPrintWriter, finalParsedXmlData, var4.getMessage(), httpRequestHandler.getConsumerNumber());
                         this.runningExceptionsCount.addAndGet(1);
                         System.out.println("Error occurred while sending Read for meter " + finalParsedXmlData.getMeterNumber());
+                        System.out.println(var4.getMessage());
                         if(var4.getMessage().contains("401"))
-                        this.authToken=httpRequestHandler.reloginUser("XML_mcz","XML_mcz").getMessage();
+                        {
+                            this.authToken = httpRequestHandler.reloginUser(Constants.userName, Constants.passWord).getMessage();
+                            System.out.println("Inside Catch relogin");
+                        }
                     }
 
                     this.processedFiles.addAndGet(1);

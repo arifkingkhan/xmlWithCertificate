@@ -126,6 +126,8 @@ public class LoginForm extends JFrame {
         }
 
         this.loginWorker = new LoginWorker(username, password, this);
+        Constants.userName=username;
+        Constants.passWord=password;
         this.loginWorker.execute();
 
         cons.setLoginWorker(this.loginWorker);
