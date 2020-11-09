@@ -1,6 +1,7 @@
 package com.ngb.xml.uiWorker;
 
 import com.ngb.xml.dto.HttpHandlerResponse;
+import com.ngb.xml.globals.Globals;
 import com.ngb.xml.http.HttpRequestsHandler;
 import com.ngb.xml.ui.XmlUploader;
 import java.util.List;
@@ -17,6 +18,8 @@ public class LoginWorker extends SwingWorker<Void, HttpHandlerResponse> {
         this.username = username;
         this.password = password;
         this.loginForm = loginForm;
+        Globals.userName=username;
+        Globals.password=password;
     }
 
     public Void doInBackground() throws Exception {

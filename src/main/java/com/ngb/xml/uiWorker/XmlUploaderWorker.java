@@ -2,17 +2,14 @@ package com.ngb.xml.uiWorker;
 
 import com.google.common.collect.Lists;
 import com.ngb.xml.dto.ParsedXmlData;
+import com.ngb.xml.globals.Globals;
 import com.ngb.xml.http.HttpRequestsHandler;
 import com.ngb.xml.parser.XmlParserHandler;
 import com.ngb.xml.ui.XmlUploader;
 import java.io.File;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,11 +24,12 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.lang3.tuple.Pair;
 import utils.MeterMakeCodeMapping;
+import org.apache.commons.io.FileUtils;
 
 public class XmlUploaderWorker extends SwingWorker<Void, Pair<AtomicInteger, AtomicInteger>> {
     private static final Integer NO_OF_REQUEST_THREADS = 25;
     private static final Integer PARTITION_SIZE = 50;
-    private final String authToken;
+   // private final String authToken;
     private final JLabel lblSuccessfulUpload;
     private final JLabel lblErrors;
     private final JLabel lblTotalFiles;
@@ -50,7 +48,7 @@ public class XmlUploaderWorker extends SwingWorker<Void, Pair<AtomicInteger, Ato
     private AtomicInteger runningExceptionsCount;
 
     public XmlUploaderWorker(String authToken, JLabel lblSuccessfulUpload, JLabel lblErrors, JLabel lblTotalFiles, JProgressBar uploadProgressbar, File xmlDirectory, File outputDirectory, XmlUploader xmlUploader, JButton btnUpload, JButton btnXmlDirectory, JButton btnOutputDirectory) {
-        this.authToken = authToken;
+        Globals.authToken = authToken;
         this.lblSuccessfulUpload = lblSuccessfulUpload;
         this.lblErrors = lblErrors;
         this.lblTotalFiles = lblTotalFiles;
@@ -65,8 +63,23 @@ public class XmlUploaderWorker extends SwingWorker<Void, Pair<AtomicInteger, Ato
         MeterMakeCodeMapping.initMeterMakeCodeMap();
     }
 
+
+
+
     public Void doInBackground() throws Exception {
-        File[] allXmlFiles = this.xmlDirectory.listFiles(File::isFile);
+
+        String [] extension = new String [] {"xml"};
+
+        List <File> f =(List<File>)FileUtils.listFiles(this.xmlDirectory,extension,true);
+
+        File [] allXmlFiles = new File[f.size()];
+
+        // ArrayList to Array Conversion
+       for (int i =0; i < f.size(); i++) {
+           allXmlFiles[i] = f.get(i);
+           System.out.println(allXmlFiles[i]);
+      }
+
         File parsedFilesOutput = null;
         File exceptionsOutput = null;
 
@@ -141,7 +154,7 @@ public class XmlUploaderWorker extends SwingWorker<Void, Pair<AtomicInteger, Ato
 
                     try {
                         httpRequestHandler = new HttpRequestsHandler();
-                        httpRequestHandler.sendParsedDataToServer(finalParsedXmlData, this.authToken);
+                        httpRequestHandler.sendParsedDataToServer(finalParsedXmlData, Globals.authToken);
                         this.logParsedData(this.successPrintWriter, finalParsedXmlData, httpRequestHandler.getConsumerNumber());
                         this.runningSuccessfulRequestsCount.addAndGet(1);
                         System.out.println("Read Successfully sent for meter " + finalParsedXmlData.getMeterNumber());
