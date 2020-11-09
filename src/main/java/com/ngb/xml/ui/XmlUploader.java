@@ -51,7 +51,7 @@ public class XmlUploader extends JFrame {
         this.initComponents();
         this.username = username;
         this.authToken = authToken;
-        this.lblUsername.setText("HELLO " + this.username + " !");
+        this.lblUsername.setText(this.username + " !" + "Production " + "XML_FILE");
         this.xmlDirectoryChooser.setFileSelectionMode(1);
         this.outputDirectoryChooser.setFileSelectionMode(1);
         this.uploadProgressbar.setStringPainted(true);
